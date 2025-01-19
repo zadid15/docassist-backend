@@ -23,15 +23,17 @@ class PatientPolicy
      */
     public function view(User $user, Patient $patient): bool
     {
-        return in_array($user->role, ['admin', 'doctor']) && $user->id === $patient->users_id;
+        return false;
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user): Response
     {
-        return false;
+        return in_array($user->role, ['admin', 'nurse'])
+            ? Response::allow()
+            : Response::deny('You do not have permission to create patients.');
     }
 
     /**

@@ -30,6 +30,29 @@ class PatientController extends Controller
     public function store(Request $request)
     {
         //
+        $this->authorize('create', Patient::class);
+
+        $data = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:patients',
+            'phone' => 'required|unique:patients',
+            'address' => 'required',
+            'dob' => 'required',
+        ]);
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Invalid data'
+            ], 400);
+        } else {
+            $data = array_merge($data, ['user_id' => Auth::user()->id]);
+            $patient = Patient::create($data);
+
+            return response()->json([
+                'message' => 'Patient Data Created Successfully',
+                'data' => new PatientResource($patient)
+            ]);
+        }
     }
 
     /**
