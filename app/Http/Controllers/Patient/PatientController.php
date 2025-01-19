@@ -38,6 +38,7 @@ class PatientController extends Controller
             'phone' => 'required|unique:patients',
             'address' => 'required',
             'dob' => 'required',
+            'gender' => 'required|in:male,female',
         ]);
 
         if (!$data) {
@@ -83,6 +84,36 @@ class PatientController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $this->authorize('update', Patient::class);
+
+        $data = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'address' => 'required',
+            'dob' => 'required',
+            'gender' => 'required|in:male,female',
+        ]);
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Invalid data'
+            ], 400);
+        } else {
+            $patient = Patient::find($id);
+
+            if (!$patient) {
+                return response()->json([
+                    'message' => 'Patient not found, ID: ' . $id
+                ], 404);
+            } else {
+                $patient->update($data);
+                return response()->json([
+                    'message' => 'Patient Data Updated Successfully',
+                    'data' => new PatientResource($patient)
+                ]);
+            }
+        }
     }
 
     /**

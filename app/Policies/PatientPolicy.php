@@ -15,7 +15,7 @@ class PatientPolicy
     {
         return in_array($user->role, ['admin', 'doctor'])
             ? Response::allow()
-            : Response::deny('You do not have permission to view patients.');
+            : Response::deny('You do not have permission to view patients data.');
     }
 
     /**
@@ -33,17 +33,17 @@ class PatientPolicy
     {
         return in_array($user->role, ['admin', 'nurse'])
             ? Response::allow()
-            : Response::deny('You do not have permission to create patients.');
+            : Response::deny('You do not have permission to create patients data.');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Patient $patient): Response
+    public function update(User $user): Response
     {
         return in_array($user->role, ['admin', 'doctor'])
             ? Response::allow()
-            : Response::deny('You do not have permission to update patients.');
+            : Response::deny('You do not have permission to update patients data.');
     }
 
     /**
