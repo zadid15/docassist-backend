@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PatientResource;
+use App\Models\Logging;
 use App\Models\Patient;
+use Exception;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PatientController extends Controller
 {
@@ -18,10 +21,20 @@ class PatientController extends Controller
     public function index()
     {
         //
-        $this->authorize('viewAny', Patient::class);
+        try {
+            $this->authorize('viewAny', Patient::class);
 
-        $patients = Patient::latest()->get();
-        return PatientResource::collection($patients);
+            $patients = Patient::latest()->get();
+            return PatientResource::collection($patient);
+        } catch (Exception $e) {
+            Log::error('Failed to get patients data: ' . $e->getMessage());
+
+            Logging::record(Auth::user()->id, 'Failed to get patients data: ' . $e->getMessage(),  request()->fullUrl(), request()->ip());
+
+            return response()->json([
+                'message' => 'Failed to get patients data: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**
