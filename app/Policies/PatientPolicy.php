@@ -39,9 +39,11 @@ class PatientPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Patient $patient): bool
+    public function update(User $user, Patient $patient): Response
     {
-        return false;
+        return in_array($user->role, ['admin', 'doctor'])
+            ? Response::allow()
+            : Response::deny('You do not have permission to update patients.');
     }
 
     /**

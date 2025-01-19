@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('phone');
             $table->text('address');
             $table->date('dob');
+            $table->enum('gender', ['male', 'female']);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

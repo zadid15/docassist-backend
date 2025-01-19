@@ -61,6 +61,20 @@ class PatientController extends Controller
     public function show(string $id)
     {
         //
+        $this->authorize('viewAny', Patient::class);
+
+        $patient = Patient::find($id);
+
+        if (!$patient) {
+            return response()->json([
+                'message' => 'Patient not found, ID: ' . $id
+            ], 404);
+        } else {
+            return response()->json([
+                'message' => 'Patient Data Fetched Successfully',
+                'data' => new PatientResource($patient)
+            ]);
+        }
     }
 
     /**
