@@ -49,9 +49,11 @@ class PatientPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Patient $patient): bool
+    public function delete(User $user): Response
     {
-        return false;
+        return $user->role === 'admin'
+            ? Response::allow()
+            : Response::deny('You do not have permission to delete patients data.');
     }
 
     /**

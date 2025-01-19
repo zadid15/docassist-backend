@@ -122,5 +122,19 @@ class PatientController extends Controller
     public function destroy(string $id)
     {
         //
+        $this->authorize('delete', Patient::class);
+
+        $patient = Patient::find($id);
+
+        if (!$patient) {
+            return response()->json([
+                'message' => 'Patient not found, ID: ' . $id
+            ], 404);
+        } else {
+            $patient->delete();
+            return response()->json([
+                'message' => 'Patient Data Deleted Successfully'
+            ]);
+        }
     }
 }
