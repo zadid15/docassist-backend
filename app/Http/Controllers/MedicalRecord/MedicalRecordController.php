@@ -99,6 +99,43 @@ class MedicalRecordController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $this->authorize('update', MedicalRecord::class);
+        
+        $data = $request->validate([
+            'patient_id' => 'required',
+            'diagnosis' => 'required',
+            'prescription' => 'required',
+            'notes' => 'required',
+        ]);
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Failed to update details of medical record data'
+            ], 400);
+        } else {
+            try {
+                $data = array_merge($data, ['doctor_id' => Auth::user()->id]);
+                $medicalrecord = MedicalRecord::find($id);
+
+                if (!$medicalrecord) {
+                    return response()->json([
+                        'message' => 'Medical Record not found, ID: ' . $id
+                    ], 404);
+                } else {
+                    $medicalrecord->update($data);
+                    return response()->json([
+                        'message' => 'Details of Medical Record Data Updated Successfully',
+                        'data' => new MedicalRecordResource($medicalrecord)
+                    ]);
+                }
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                Logging::record(Auth::user()->id, $e->getMessage(),  request()->fullUrl(), request()->ip());
+                return response()->json([
+                    'message' => 'Failed to update details of medical record data'
+                ], 400);
+            }
+        }
     }
 
     /**

@@ -39,9 +39,11 @@ class MedicalRecordPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, MedicalRecord $medicalRecord): bool
+    public function update(User $user): Response
     {
-        return false;
+        return $user->role === 'doctor'
+            ? Response::allow()
+            : Response::deny('You do not have permission to update medical records data.');
     }
 
     /**
