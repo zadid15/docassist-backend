@@ -39,7 +39,7 @@ class MedicalRecordController extends Controller
             'prescription' => 'required',
             'notes' => 'required',
         ]);
-        
+
         if (!$data) {
             return response()->json([
                 'message' => 'Failed to create medical record data'
@@ -100,7 +100,7 @@ class MedicalRecordController extends Controller
     {
         //
         $this->authorize('update', MedicalRecord::class);
-        
+
         $data = $request->validate([
             'patient_id' => 'required',
             'diagnosis' => 'required',
@@ -144,5 +144,27 @@ class MedicalRecordController extends Controller
     public function destroy(string $id)
     {
         //
+        $this->authorize('delete', MedicalRecord::class);
+
+        $medicalrecord = MedicalRecord::find($id);
+
+        if (!$medicalrecord) {
+            return response()->json([
+                'message' => 'Details of Medical Record not found, ID: ' . $id
+            ], 404);
+        } else {
+            try {
+                $medicalrecord->delete();
+                return response()->json([
+                    'message' => 'Details of Medical Record Data Deleted Successfully',
+                ]);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                Logging::record(Auth::user()->id, $e->getMessage(),  request()->fullUrl(), request()->ip());
+                return response()->json([
+                    'message' => 'Details of Medical Record Data not found, ID: ' . $id
+                ], 400);
+            }
+        }
     }
 }

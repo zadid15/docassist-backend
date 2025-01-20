@@ -49,9 +49,11 @@ class MedicalRecordPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, MedicalRecord $medicalRecord): bool
+    public function delete(User $user): Response
     {
-        return false;
+        return $user->role === 'doctor'
+            ? Response::allow()
+            : Response::deny('You do not have permission to delete medical records data.');
     }
 
     /**
