@@ -25,7 +25,7 @@ class PatientController extends Controller
             $this->authorize('viewAny', Patient::class);
 
             $patients = Patient::latest()->get();
-            return PatientResource::collection($patient);
+            return PatientResource::collection($patients);
         } catch (Exception $e) {
             Log::error('Failed to get patients data: ' . $e->getMessage());
 
@@ -56,16 +56,26 @@ class PatientController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => 'Invalid data'
+                'message' => 'Failed to create patient data'
             ], 400);
         } else {
-            $data = array_merge($data, ['user_id' => Auth::user()->id]);
-            $patient = Patient::create($data);
+            try {
+                $data = array_merge($data, ['user_id' => Auth::user()->id]);
+                $patient = Patient::create($data);
 
-            return response()->json([
-                'message' => 'Patient Data Created Successfully',
-                'data' => new PatientResource($patient)
-            ]);
+                return response()->json([
+                    'message' => 'Patient Data Created Successfully',
+                    'data' => new PatientResource($patient)
+                ]);
+            } catch (Exception $e) {
+                Log::error('Failed to create patient data: ' . $e->getMessage());
+
+                Logging::record(Auth::user()->id, 'Failed to create patient data: ' . $e->getMessage(),  request()->fullUrl(), request()->ip());
+
+                return response()->json([
+                    'message' => 'Failed to create patient data: ' . $e->getMessage()
+                ]);
+            }
         }
     }
 
