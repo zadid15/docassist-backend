@@ -21,6 +21,10 @@ class MedicalRecordController extends Controller
     public function index()
     {
         //
+        $this->authorize('viewAny', MedicalRecord::class);
+        
+        $medicalrecords = MedicalRecord::latest()->get();
+        return MedicalRecordResource::collection($medicalrecords);
     }
 
     /**
