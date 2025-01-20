@@ -94,10 +94,21 @@ class PatientController extends Controller
                 'message' => 'Patient not found, ID: ' . $id
             ], 404);
         } else {
-            return response()->json([
-                'message' => 'Patient Data Fetched Successfully',
-                'data' => new PatientResource($patient)
-            ]);
+            try {
+                $patient = Patient::find($id);
+                return response()->json([
+                    'message' => 'Patient Data Found Successfully',
+                    'data' => new PatientResource($patient)
+                ]);
+            } catch (Exception $e) {
+                Log::error('Failed to get details of patient data: ' . $e->getMessage());
+
+                Logging::record(Auth::user()->id, 'Failed to get details of patient data: ' . $e->getMessage(),  request()->fullUrl(), request()->ip());
+
+                return response()->json([
+                    'message' => 'Failed to get details of patient data: ' . $e->getMessage()
+                ]);
+            }
         }
     }
 
@@ -120,20 +131,31 @@ class PatientController extends Controller
 
         if (!$data) {
             return response()->json([
-                'message' => 'Invalid data'
+                'message' => 'Failed to update patient data'
             ], 400);
         } else {
-            $patient = Patient::find($id);
+            try {
+                $patient = Patient::find($id);
 
-            if (!$patient) {
-                return response()->json([
-                    'message' => 'Patient not found, ID: ' . $id
-                ], 404);
-            } else {
+                if (!$patient) {
+                    return response()->json([
+                        'message' => 'Patient not found, ID: ' . $id
+                    ], 404);
+                }
+
                 $patient->update($data);
+
                 return response()->json([
                     'message' => 'Patient Data Updated Successfully',
                     'data' => new PatientResource($patient)
+                ]);
+            } catch (Exception $e) {
+                Log::error('Failed to update patient data: ' . $e->getMessage());
+
+                Logging::record(Auth::user()->id, 'Failed to update patient data: ' . $e->getMessage(),  request()->fullUrl(), request()->ip());
+
+                return response()->json([
+                    'message' => 'Failed to update patient data: ' . $e->getMessage()
                 ]);
             }
         }
