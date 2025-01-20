@@ -176,10 +176,21 @@ class PatientController extends Controller
                 'message' => 'Patient not found, ID: ' . $id
             ], 404);
         } else {
-            $patient->delete();
-            return response()->json([
-                'message' => 'Patient Data Deleted Successfully'
-            ]);
+            try {
+                $patient->delete();
+
+                return response()->json([
+                    'message' => 'Patient Data Deleted Successfully'
+                ]);
+            } catch (Exception $e) {
+                Log::error('Failed to delete patient data: ' . $e->getMessage());
+
+                Logging::record(Auth::user()->id, 'Failed to delete patient data: ' . $e->getMessage(),  request()->fullUrl(), request()->ip());
+
+                return response()->json([
+                    'message' => 'Failed to delete patient data: ' . $e->getMessage()
+                ]);
+            }
         }
     }
 }
