@@ -69,7 +69,28 @@ class MedicalRecordController extends Controller
     public function show(string $id)
     {
         //
-        
+        $this->authorize('viewAny', MedicalRecord::class);
+
+        $medicalrecord = MedicalRecord::find($id);
+
+        if (!$medicalrecord) {
+            return response()->json([
+                'message' => 'Details of Medical Record not found, ID: ' . $id
+            ], 404);
+        } else {
+            try {
+                return response()->json([
+                    'message' => 'Details of Medical Record Data Found Successfully',
+                    'data' => new MedicalRecordResource($medicalrecord)
+                ]);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                Logging::record(Auth::user()->id, $e->getMessage(),  request()->fullUrl(), request()->ip());
+                return response()->json([
+                    'message' => 'Details of Medical Record Data not found, ID: ' . $id
+                ], 400);
+            }
+        }
     }
 
     /**
