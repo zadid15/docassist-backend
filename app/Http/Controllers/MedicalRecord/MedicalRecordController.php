@@ -22,7 +22,6 @@ class MedicalRecordController extends Controller
     {
         //
         $this->authorize('viewAny', MedicalRecord::class);
-        
         $medicalrecords = MedicalRecord::latest()->get();
         return MedicalRecordResource::collection($medicalrecords);
     }
@@ -33,6 +32,35 @@ class MedicalRecordController extends Controller
     public function store(Request $request)
     {
         //
+        $this->authorize('create', MedicalRecord::class);
+        $data = $request->validate([
+            'patient_id' => 'required',
+            'diagnosis' => 'required',
+            'prescription' => 'required',
+            'notes' => 'required',
+        ]);
+        
+        if (!$data) {
+            return response()->json([
+                'message' => 'Failed to create medical record data'
+            ], 400);
+        } else {
+            try {
+                $data = array_merge($data, ['doctor_id' => Auth::user()->id]);
+                $medicalrecords = MedicalRecord::create($data);
+
+                return response()->json([
+                    'message' => 'Medical Record Data Created Successfully',
+                    'data' => new MedicalRecordResource($medicalrecords)
+                ]);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                Logging::record(Auth::user()->id, $e->getMessage(),  request()->fullUrl(), request()->ip());
+                return response()->json([
+                    'message' => 'Failed to create medical record data'
+                ], 400);
+            }
+        }
     }
 
     /**
