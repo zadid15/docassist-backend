@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\MedicalRecord\MedicalRecordController;
 use App\Http\Controllers\Patient\PatientController;
 use App\Models\Patient;
 use Illuminate\Http\Request;
@@ -19,3 +20,6 @@ Route::post('/logout', LogoutController::class)->middleware('auth:sanctum');
 
 // Patient
 Route::apiResource('/patient', PatientController::class)->middleware('auth:sanctum');
+
+// Medical Records
+Route::apiResource('/medical-record', MedicalRecordController::class)->middleware('auth:sanctum');
