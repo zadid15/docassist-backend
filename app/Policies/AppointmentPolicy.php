@@ -29,9 +29,11 @@ class AppointmentPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user): Response
     {
-        return false;
+        return in_array($user->role, ['admin', 'nurse'])
+            ? Response::allow()
+            : Response::deny('You do not have permission to create appointments data.');
     }
 
     /**

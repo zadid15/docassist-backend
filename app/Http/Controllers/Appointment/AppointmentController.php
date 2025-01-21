@@ -45,6 +45,30 @@ class AppointmentController extends Controller
     public function store(Request $request)
     {
         //
+        $this->authorize('create', Appointment::class);
+
+        $data = $request->validate([
+            'patient_id' => 'required',
+            'doctor_id' => 'required',
+            'appointment_date' => 'required',
+            'status' => 'in:pending,confirmed,cancelled',
+        ]);
+
+        try {
+            $appointment = Appointment::create($data);
+            return new AppointmentResource($appointment);
+        } catch (Exception $e) {
+            Log::error('Failed to create appointment data: ' . $e->getMessage());
+            Logging::create([
+                'user_id' => Auth::user()->id,
+                'message' => 'Failed to create appointment data: ' . $e->getMessage(),
+                'action' => request()->fullUrl(),
+                'ip_address' => request()->ip(),
+            ]);
+            return response()->json([
+                'message' => 'Failed to create appointment data: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**
