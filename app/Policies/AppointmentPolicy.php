@@ -11,9 +11,11 @@ class AppointmentPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user): Response
     {
-        return false;
+        return in_array($user->role, ['admin', 'doctor', 'nurse'])
+            ? Response::allow()
+            : Response::deny('You do not have permission to view appointments data.');
     }
 
     /**

@@ -36,6 +36,10 @@ class User extends Authenticatable
         return $this->hasMany(MedicalRecord::class);
     }
 
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

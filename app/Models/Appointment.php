@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Appointment extends Model
 {
@@ -13,4 +14,14 @@ class Appointment extends Model
         'appointment_date',
         'status',
     ];
+
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function doctor(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }
