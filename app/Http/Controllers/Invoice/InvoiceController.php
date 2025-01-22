@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Invoice;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InvoiceResource;
 use App\Models\Invoice;
+use App\Models\Logging;
+use Exception;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
@@ -16,6 +21,22 @@ class InvoiceController extends Controller
     public function index()
     {
         //
+        try {
+            $this->authorize('viewAny', Invoice::class);
+            $invoices = Invoice::latest()->get();
+            return InvoiceResource::collection($invoices);
+        } catch (Exception $e) {
+            Log::error('Failed to get invoices data: ' . $e->getMessage());
+            Logging::create([
+                'user_id' => Auth::user()->id,
+                'message' => 'Failed to get invoices data: ' . $e->getMessage(),
+                'action' => request()->fullUrl(),
+                'ip_address' => request()->ip(),
+            ]);
+            return response()->json([
+                'message' => 'Failed to get invoices data: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**

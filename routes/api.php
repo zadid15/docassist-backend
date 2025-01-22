@@ -4,6 +4,7 @@ use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Invoice\InvoiceController;
 use App\Http\Controllers\MedicalRecord\MedicalRecordController;
 use App\Http\Controllers\Patient\PatientController;
 use App\Models\Patient;
@@ -28,3 +29,6 @@ Route::apiResource('/medical-record', MedicalRecordController::class)->middlewar
 
 // Appointment
 Route::apiResource('/appointment', AppointmentController::class)->middleware('auth:sanctum');
+
+// Invoice
+Route::apiResource('/invoice', InvoiceController::class)->middleware('auth:sanctum');
