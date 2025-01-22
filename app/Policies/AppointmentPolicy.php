@@ -39,9 +39,11 @@ class AppointmentPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Appointment $appointment): bool
+    public function update(User $user): Response
     {
-        return false;
+        return in_array($user->role, ['admin', 'nurse'])
+            ? Response::allow()
+            : Response::deny('You do not have permission to update appointments data.');
     }
 
     /**
