@@ -79,6 +79,28 @@ class InvoiceController extends Controller
     public function show(string $id)
     {
         //
+        $this->authorize('view', Invoice::class);
+
+        $invoice = Invoice::find($id);
+
+        if (!$invoice) {
+            return response()->json([
+                'message' => 'Invoice not found'
+            ], 404);
+        } else {
+            try{
+                return response()->json([
+                    'message' => 'Invoice Data Found Successfully',
+                    'data' => new InvoiceResource($invoice)
+                ]);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                Logging::record(Auth::user()->id, $e->getMessage(),  request()->fullUrl(), request()->ip());
+                return response()->json([
+                    'message' => 'Failed to get invoice data: ' . $e->getMessage()
+                ]);
+            }
+        }
     }
 
     /**
