@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Invoice;
 
 use App\Http\Controllers\Controller;
+use App\Models\Invoice;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */

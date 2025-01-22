@@ -11,9 +11,11 @@ class InvoicePolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user): Response
     {
-        return false;
+        return $user->role === 'admin'
+            ? Response::allow()
+            : Response::deny('You do not have permission to view invoices data.');
     }
 
     /**
