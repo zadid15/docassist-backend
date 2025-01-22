@@ -145,5 +145,19 @@ class InvoiceController extends Controller
     public function destroy(string $id)
     {
         //
+        $this->authorize('delete', Invoice::class);
+
+        try {
+            $invoice = Invoice::find($id)->delete();
+            return response()->json([
+                'message' => 'Invoice Data Deleted Successfully'
+            ]);
+        } catch (Exception $e) {
+            Log::error('Failed to delete invoice data: ' . $e->getMessage());
+            Logging::record(Auth::user()->id, 'Failed to delete invoice data: ' . $e->getMessage(),  request()->fullUrl(), request()->ip());
+            return response()->json([
+                'message' => 'Failed to delete invoice data: ' . $e->getMessage()
+            ]);
+        }
     }
 }
