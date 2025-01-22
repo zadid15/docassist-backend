@@ -77,6 +77,33 @@ class AppointmentController extends Controller
     public function show(string $id)
     {
         //
+        $this->authorize('viewAny', Appointment::class);
+
+        $appointment = Appointment::find($id);
+
+        if (!$appointment) {
+            return response()->json([
+                'message' => 'Details of Appointment not found, ID: ' . $id
+            ], 404);
+        } else {
+            try {
+                return response()->json([
+                    'message' => 'Details of Appointment Data Found Successfully',
+                    'data' => new AppointmentResource($appointment)
+                ]);
+            } catch (Exception $e) {
+                Log::error('Failed to get details of appointment data: ' . $e->getMessage());
+                Logging::create([
+                    'user_id' => Auth::user()->id,
+                    'message' => 'Failed to get details of appointment data: ' . $e->getMessage(),
+                    'action' => request()->fullUrl(),
+                    'ip_address' => request()->ip(),
+                ]);
+                return response()->json([
+                    'message' => 'Failed to  get details of appointment data: ' . $e->getMessage()
+                ]);
+            }
+        }
     }
 
     /**
