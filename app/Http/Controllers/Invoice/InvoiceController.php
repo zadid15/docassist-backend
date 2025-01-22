@@ -85,19 +85,19 @@ class InvoiceController extends Controller
 
         if (!$invoice) {
             return response()->json([
-                'message' => 'Invoice not found'
+                'message' => 'Details of Invoice not found'
             ], 404);
         } else {
             try{
                 return response()->json([
-                    'message' => 'Invoice Data Found Successfully',
+                    'message' => 'Details of Invoice Data Found Successfully',
                     'data' => new InvoiceResource($invoice)
                 ]);
             } catch (Exception $e) {
                 Log::error($e->getMessage());
                 Logging::record(Auth::user()->id, $e->getMessage(),  request()->fullUrl(), request()->ip());
                 return response()->json([
-                    'message' => 'Failed to get invoice data: ' . $e->getMessage()
+                    'message' => 'Failed to get details of invoice data: ' . $e->getMessage()
                 ]);
             }
         }
@@ -109,6 +109,34 @@ class InvoiceController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $this->authorize('update', Invoice::class);
+
+        $data = $request->validate([
+            'patient_id' => 'required',
+            'amount' => 'required',
+            'status' => 'required|in:paid,unpaid',
+        ]);
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Failed to update details of invoice data'
+            ], 400);
+        } else {
+            try {
+                $invoice = Invoice::find($id);
+                $invoice->update($data);
+                return response()->json([
+                    'message' => 'Details of Invoice Data Updated Successfully',
+                    'data' => new InvoiceResource($invoice)
+                ]);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                Logging::record(Auth::user()->id, $e->getMessage(),  request()->fullUrl(), request()->ip());
+                return response()->json([
+                    'message' => 'Failed to update details of invoice data: ' . $e->getMessage()
+                ]);
+            }
+        }
     }
 
     /**
