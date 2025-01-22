@@ -49,9 +49,11 @@ class AppointmentPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Appointment $appointment): bool
+    public function delete(User $user): Response
     {
-        return false;
+        return in_array($user->role, ['admin', 'nurse'])
+            ? Response::allow()
+            : Response::deny('You do not have permission to delete appointments data.');
     }
 
     /**

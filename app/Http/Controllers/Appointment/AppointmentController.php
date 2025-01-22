@@ -145,5 +145,25 @@ class AppointmentController extends Controller
     public function destroy(string $id)
     {
         //
+        $this->authorize('delete', Appointment::class);
+
+        try {
+            $appointment = Appointment::find($id);
+            $appointment->delete();
+            return response()->json([
+                'message' => 'Appointment Data Deleted Successfully'
+            ]);
+        } catch (Exception $e) {
+            Log::error('Failed to delete appointment data: ' . $e->getMessage());
+            Logging::create([
+                'user_id' => Auth::user()->id,
+                'message' => 'Failed to delete appointment data: ' . $e->getMessage(),
+                'action' => request()->fullUrl(),
+                'ip_address' => request()->ip(),
+            ]);
+            return response()->json([
+                'message' => 'Failed to delete appointment data: ' . $e->getMessage()
+            ]);
+        }
     }
 }
