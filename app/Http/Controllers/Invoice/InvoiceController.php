@@ -45,6 +45,32 @@ class InvoiceController extends Controller
     public function store(Request $request)
     {
         //
+        $this->authorize('create', Invoice::class);
+        $data = $request->validate([
+            'patient_id' => 'required',
+            'amount' => 'required',
+            'status' => 'required|in:paid,unpaid',
+        ]);
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Failed to create invoice data'
+            ], 400);
+        } else {
+            try {
+                $invoice = Invoice::create($data);
+                return response()->json([
+                    'message' => 'Invoice Data Created Successfully',
+                    'data' => new InvoiceResource($invoice)
+                ]);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                Logging::record(Auth::user()->id, $e->getMessage(),  request()->fullUrl(), request()->ip());
+                return response()->json([
+                    'message' => 'Failed to create invoice data: ' . $e->getMessage()
+                ]);
+            }
+        }
     }
 
     /**

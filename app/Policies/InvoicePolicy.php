@@ -21,33 +21,41 @@ class InvoicePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Invoice $invoice): bool
+    public function view(User $user): Response
     {
-        return false;
+        return in_array($user->role, ['admin', 'nurse'])
+            ? Response::allow()
+            : Response::deny('You do not have permission to view invoices data.');
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user): Response
     {
-        return false;
+        return $user->role === 'admin'
+            ? Response::allow()
+            : Response::deny('You do not have permission to create invoices data.');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Invoice $invoice): bool
+    public function update(User $user): Response
     {
-        return false;
+        return $user->role === 'admin'
+            ? Response::allow()
+            : Response::deny('You do not have permission to update invoices data.');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Invoice $invoice): bool
+    public function delete(User $user): Response
     {
-        return false;
+        return $user->role === 'admin'
+            ? Response::allow()
+            : Response::deny('You do not have permission to delete invoices data.');
     }
 
     /**
